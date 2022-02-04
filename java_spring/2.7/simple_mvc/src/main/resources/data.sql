@@ -1,0 +1,1 @@
+INSERT INTO books(author,title,size) VALUES ('Mikhail Bulgakov','The Master and Margarita',666);

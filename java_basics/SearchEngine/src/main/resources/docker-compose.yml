@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+    db:
+        image: mysql
+        container_name: engine_mysql
+        environment:
+            MYSQL_USER: engine
+            MYSQL_PASSWORD: en6in3
+            MYSQL_ROOT_PASSWORD: 1wfv56jh
+        ports:
+            - 3306:3306        

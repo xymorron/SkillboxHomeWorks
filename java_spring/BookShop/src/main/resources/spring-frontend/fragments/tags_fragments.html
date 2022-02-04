@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div class="Tags" id="tags" th:fragment="tagsFragment(tags)">
+    <div class="Tag" th:each="tag : ${tags}" th:class="${'Tag' + tag.sizeIdentifier}">
+        <a href="/tags/index.html" th:text="${tag.name}" th:href="${'/tags/' + tag.id}">современная литература</a>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title> My book shelf</title>
+    <meta charset="UTF-8">
+    <style>
+        #root_container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+
+        }
+
+        #books {
+            width: 50%;
+            border-collapse: collapse;
+        }
+
+        table {
+            margin: 25px;
+        }
+        th{
+            text-align: left;
+        }
+
+        th,td{
+            border-bottom: 1px solid #ddd;
+        }
+        .inputError {
+            background-color: #FF0000FF;
+        }
+    </style>
+</head>
+<body>
+    <div id="root_container">
+        <form method="post" th:action="@{/books/save}" th:object="${book}">
+            <table>
+                <tr>
+                    <td>
+                        <input th:class="${#fields.hasErrors('author')}? inputError" type="text" placeholder="author" th:field="*{author}">
+                    </td>
+                    <td>
+                        <input  th:class="${#fields.hasErrors('title')}? inputError" type="text" placeholder="book_title" th:field="*{title}">
+                    </td>
+                    <td>
+                        <input  th:class="${#fields.hasErrors('size')}? inputError" type="text" placeholder="size (pages)" th:field="*{size}">
+                    </td>
+                    <td>
+                        <input type="submit" value="save">
+                    </td>
+                </tr>
+                <tr th:if="${#fields.hasErrors()}">
+                    <td colspan="3">
+                        fields have errors:
+                        <ul>
+                            <li th:if="${#fields.hasErrors('author')}">
+                                author error
+                            </li>
+                            <li th:if="${#fields.hasErrors('title')}">
+                                title error
+                            </li>
+                            <li th:if="${#fields.hasErrors('size')}">
+                                size error
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <form method="post" th:action="@{/books/remove}" th:object="${bookIdToRemove}">
+            <table>
+                <tr>
+                    <td>
+                        <input th:class="${#fields.hasErrors('id')}? inputError" type="text" placeholder="id number" th:field="*{id}">
+                    </td>
+                    <td>
+                        <input type="submit" value="remove">
+                    </td>
+                    <td th:if="${#fields.hasErrors('id')}">
+                        <p>Wrong id</p>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <form method="post" th:action="@{/books/removeByRegex}" th:object="${regexToRemove}">
+            <table>
+                <tr>
+                    <td>
+                        <input th:class="${#fields.hasErrors('regex')}? inputError" type="text" placeholder="regex" th:field="*{regex}">
+                    </td>
+                    <td>
+                        <input type="submit" value="remove by regex">
+                    </td>
+                    <td th:if="${#fields.hasErrors('regex')}">
+                        <p>Regex cannot be blank</p>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <form method="post" th:action="@{/books/uploadFile}" enctype="multipart/form-data">
+            <table>
+                <tr>
+                    <td>
+                        <input type="file" name="file">
+                    </td>
+                    <td>
+                        <input type="submit" value="upload">
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <table id="books">
+            <tr>
+                <th>id</th>
+                <th>author</th>
+                <th>title</th>
+                <th>size</th>
+            </tr>
+            <tr th:each="book : ${bookList}">
+                <td th:text="${book.id}"></td>
+                <td th:text="${book.author}"></td>
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.size}"></td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+</html>
