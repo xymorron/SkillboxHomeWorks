@@ -186,7 +186,7 @@
     </changeSet>
     <changeSet author="kuser (generated)" id="1638894265920-28">
         <createTable tableName="book_review">
-            <column autoIncrement="true" name="id" type="SERIAL">
+            <column autoIncrement="true" name="id" type="SERIAL" startWith="1001">
                 <constraints primaryKey="true" primaryKeyName="book_review_pkey"/>
             </column>
             <column name="book_id" type="INT">
@@ -330,7 +330,7 @@
     </changeSet>
     <changeSet author="kuser (generated)" id="1638894265920-36">
         <createTable tableName="users">
-            <column autoIncrement="true" name="id" type="SERIAL">
+            <column autoIncrement="true" name="id" type="SERIAL" startWith="1001">
                 <constraints primaryKey="true" primaryKeyName="users_pkey"/>
             </column>
             <column name="balance" type="INT">

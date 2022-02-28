@@ -14,4 +14,5 @@
     <include file="db/changelog/bookFile-book_link_added.xml"/>
     <include file="db/changelog/book2user_constraint_added.xml"/>
     <include file="db/changelog/bookRate_table_added.xml"/>
+    <include file="db/changelog/users_password_field_added.xml"/>
 </databaseChangeLog>

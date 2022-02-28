@@ -106,7 +106,7 @@
           </li>
         </ul>
         <div class="Product">
-          <div class="ProductCard">
+          <div class="ProductCard" th:replace="fragments/bookpage_fragments :: ProductCardFragmentWithBookAssessment">
             <div class="ProductCard-look">
               <div class="ProductCard-photo"><img src="/assets/img/content/main/card.jpg"
                                                   th:src="${book.image} ? ${book.image} : '/alt_card.jpg'"
@@ -118,13 +118,14 @@
                 <h1 class="ProductCard-title" th:text="${book.title}">Мара и морок
                 </h1>
                 <div class="ProductCard-author">
-                  <span class="ProductCard-titleProp" th:text="${authors.size()} == 1 ? 'Автор:' : 'Авторы:'">Автор:
+                  <span class="ProductCard-titleProp" th:text="${book.authors.size()} == 1 ? 'Автор:' : 'Авторы:'">
+                    Автор:
                   </span>&#32;
-                  <th:block th:each="author : ${authors}">
+                  <th:block th:each="author : ${book.authors}">
                     <a href="#" th:href="'/authors/' + ${author.slug}" th:text="${author.name}">Лия Арден</a>
                   </th:block>
                 </div>
-                <div class="ProductCard-rating" th:replace="~{fragments/rating_fragment :: ProductCard-ratingFragment}">
+                <div class="ProductCard-rating" th:replace="~{fragments/bookpage_fragments :: BookRatingFragment}">
                   <span class="ProductCard-titleProp">Рейтинг:</span>
                   <button class="trigger trigger_dropdown" type="button">
                     <div class="Rating Rating_noStyleLink">
@@ -365,7 +366,8 @@
                 <div class="ProductCard-assessment">
                   <span class="ProductCard-titleProp">Оцените книгу:</span>
                   <span class="Rating Rating_input" data-bookid="2121" th:attr="data-bookid=${book.slug}">
-                    <span class="Rating-stars"><span class="Rating-star">
+                    <span class="Rating-stars">
+                      <span class="Rating-star" th:classappend="${bookRateByUser >= 1} ? 'Rating-star_view' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                           <g>
                             <g>
@@ -373,7 +375,8 @@
                             </g>
                           </g>
                         </svg></span>
-                      <input name="rating" type="radio" value="1"/><span class="Rating-star">
+                      <input name="rating" type="radio" value="1"/>
+                      <span class="Rating-star" th:classappend="${bookRateByUser >= 2} ? 'Rating-star_view' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                           <g>
                             <g>
@@ -381,7 +384,8 @@
                             </g>
                           </g>
                         </svg></span>
-                      <input name="rating" type="radio" value="2"/><span class="Rating-star">
+                      <input name="rating" type="radio" value="2"/>
+                      <span class="Rating-star" th:classappend="${bookRateByUser >= 3} ? 'Rating-star_view' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                           <g>
                             <g>
@@ -389,7 +393,8 @@
                             </g>
                           </g>
                         </svg></span>
-                      <input name="rating" type="radio" value="3"/><span class="Rating-star">
+                      <input name="rating" type="radio" value="3"/>
+                      <span class="Rating-star" th:classappend="${bookRateByUser >= 4} ? 'Rating-star_view' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                           <g>
                             <g>
@@ -397,7 +402,8 @@
                             </g>
                           </g>
                         </svg></span>
-                      <input name="rating" type="radio" value="4"/><span class="Rating-star">
+                      <input name="rating" type="radio" value="4"/>
+                      <span class="Rating-star" th:classappend="${bookRateByUser == 5} ? 'Rating-star_view' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                           <g>
                             <g>
@@ -479,7 +485,7 @@
               </div>
               <div id="myPopup">
                 <p>Ссылки для скачивания</p>
-                <div th:each="bookFile : ${bookFiles}">
+                <div th:each="bookFile : ${book.getBookFiles()}">
                   <a href="#" th:href="'/books/download/' + ${bookFile.hash}" th:text="${bookFile.bookFileType.name}"></a>
                 </div>
                 <span id="myPopup__close" class="close">✖</span>
@@ -492,7 +498,7 @@
               <!--        +btn('button')(data-sendstatus='UNLINK' data-bookid="[1111]")._muted Вернуть из архива-->
             </div>
           </div>
-          <div class="Product-comments">
+          <div class="Product-comments" th:replace="fragments/bookpage_fragments :: CommentsTotalFragment">
             <div class="Product-comments-header">
               <h3 class="Product-comments-title">Отзывы
               </h3><span class="Rating"><span class="Rating-stars"><span class="Rating-star Rating-star_view">
@@ -530,14 +536,15 @@
                           <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
                         </g>
                       </g>
-                    </svg></span></span><span class="Rating-title">567 отзывов</span></span>
+                    </svg></span></span><span class="Rating-title" th:with="sizeSuffix = ${book.getBookReviewEntities().size() % 100}"
+                                              th:text="${book.getBookReviewEntities().size()} +
+                                              (${sizeSuffix % 10 <= 4 && sizeSuffix % 10 >= 2 && (sizeSuffix < 10 || sizeSuffix > 14)} ? ' отзыва' :
+                                              (${sizeSuffix % 10 == 1 && sizeSuffix != 11} ? ' отзыв' : ' отзывов'))">567 отзывов</span></span>
             </div>
           </div>
           <div class="Comments">
-            <strong class="Comments-title">Написать отзыв
-            </strong>
-            <div class="Comments-addComment">
-              <form class="form" action="#" method="post" data-bookid="1111">
+            <div class="Comments-addComment" th:replace="fragments/bookpage_fragments :: AddCommentsFragment">
+              <form class="form" action="#" method="post" data-bookid="1111" th:attr="data-bookid = ${book.slug}">
                 <div class="form-group">
                   <textarea class="form-textarea Comments-review" name="review" id="review" placeholder="Текст отзыва" data-validate="require"></textarea>
                 </div>
@@ -547,7 +554,7 @@
                 </div>
               </form>
             </div>
-            <div class="Comment">
+            <div class="Comment" th:replace="fragments/bookpage_fragments :: CommentDataFragmentWithButtons">
               <div class="Comment-column Comment-column_pict">
                 <div class="Comment-avatar">
                 </div>
@@ -555,35 +562,43 @@
               <div class="Comment-column">
                 <header class="Comment-header">
                   <div>
-                    <strong class="Comment-title">Александр Кузнецов<span class="Comment-rating"><span class="Rating Rating_comment"><span class="Rating-stars"><span class="Rating-star Rating-star_view">
+                    <strong class="Comment-title" >[[${bookReview.user.name}]]
+                      <span class="Comment-rating">
+                        <span class="Rating Rating_comment"><span class="Rating-stars"
+                                                                  th:with="starRating = ${bookReview.getStarRating()}">
+                        <span class="Rating-star" th:classappend="${starRating >= 0.1} ? 'Rating-star_view' : ''">
                               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                                 <g>
                                   <g>
                                     <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
                                   </g>
                                 </g>
-                              </svg></span><span class="Rating-star Rating-star_view">
+                              </svg></span>
+                        <span class="Rating-star" th:classappend="${starRating >= 0.3} ? 'Rating-star_view' : ''">
                               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                                 <g>
                                   <g>
                                     <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
                                   </g>
                                 </g>
-                              </svg></span><span class="Rating-star">
+                              </svg></span>
+                        <span class="Rating-star" th:classappend="${starRating >= 0.5} ? 'Rating-star_view' : ''">
                               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                                 <g>
                                   <g>
                                     <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
                                   </g>
                                 </g>
-                              </svg></span><span class="Rating-star">
+                              </svg></span>
+                        <span class="Rating-star" th:classappend="${starRating >= 0.7} ? 'Rating-star_view' : ''">
                               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                                 <g>
                                   <g>
                                     <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
                                   </g>
                                 </g>
-                              </svg></span><span class="Rating-star">
+                              </svg></span>
+                        <span class="Rating-star" th:classappend="${starRating >= 0.9} ? 'Rating-star_view' : ''">
                               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
                                 <g>
                                   <g>
@@ -591,88 +606,20 @@
                                   </g>
                                 </g>
                               </svg></span></span></span></span>
-                    </strong><span class="Comment-date">17.04.2020 16:40</span>
+                    </strong><span class="Comment-date" th:text="${#temporals.format(bookReview.time, 'dd.MM.yyyy HH:mm')}">17.04.2020 16:40</span>
                   </div>
                 </header>
                 <div class="Comment-content">
-                  <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit doli. Aenean commodo ligula eget dolor. Aenean massa. Cumtipsu sociis natoque penatibus et magnis dis parturient montesti, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eutu, pretiumem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justotuio, rhoncus ut loret, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus element semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae.
-                  </p>
+                  <p th:text="${bookReview.text}">Lorem ...</p>
                   <div class="Comment-footer">
                     <div class="Comment-appeal">
-                      <button class="btn btn_white btn_like" data-btntype="check" data-check="false" data-btnradio="two2" data-likeid="1111"><span class="btn-icon"><img src="/assets/img/icons/comment/like.svg" alt="like.svg"/></span><span class="btn-content">200</span>
+                      <button class="btn btn_white btn_like" data-btntype="check" data-check="false" data-btnradio="two2" data-likeid="1111" th:attr="data-likeid = ${bookReview.id}">
+                        <span class="btn-icon"><img src="/assets/img/icons/comment/like.svg" alt="like.svg"/></span>
+                        <span class="btn-content" th:text="${bookReview.getLikesCount()}">200</span>
                       </button>
-                      <button class="btn btn_white btn_dislike" data-btntype="check" data-check="false" data-btnradio="two2" data-likeid="1111"><span class="btn-icon"><img src="/assets/img/icons/comment/dislike.svg" alt="dislike.svg"/></span><span class="btn-content">100</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="Comment">
-              <div class="Comment-column Comment-column_pict">
-                <div class="Comment-avatar">
-                </div>
-              </div>
-              <div class="Comment-column">
-                <header class="Comment-header">
-                  <div>
-                    <strong class="Comment-title">Дмитрий Петров<span class="Comment-rating"><span class="Rating Rating_comment"><span class="Rating-stars"><span class="Rating-star Rating-star_view">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
-                                <g>
-                                  <g>
-                                    <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
-                                  </g>
-                                </g>
-                              </svg></span><span class="Rating-star Rating-star_view">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
-                                <g>
-                                  <g>
-                                    <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
-                                  </g>
-                                </g>
-                              </svg></span><span class="Rating-star Rating-star_view">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
-                                <g>
-                                  <g>
-                                    <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
-                                  </g>
-                                </g>
-                              </svg></span><span class="Rating-star Rating-star_view">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
-                                <g>
-                                  <g>
-                                    <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
-                                  </g>
-                                </g>
-                              </svg></span><span class="Rating-star">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18">
-                                <g>
-                                  <g>
-                                    <path fill="#ffc000" d="M9.5 14.925L3.629 18l1.121-6.512L0 6.875l6.564-.95L9.5 0l2.936 5.925 6.564.95-4.75 4.613L15.371 18z"></path>
-                                  </g>
-                                </g>
-                              </svg></span></span></span></span>
-                    </strong><span class="Comment-date">17.04.2020 16:40</span>
-                  </div>
-                </header>
-                <div class="Comment-content">
-                  <div class="Spoiler">
-                    <div class="Spoiler-visible">
-                      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit doli. Aenean commodo ligula eget dolor. Aenean massa. Cumtipsu sociis natoque penatibus et magnis dis parturient montesti, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eutu, pretiumem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justotuio, rhoncus ut loret, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus element semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae.
-                      </p>
-                    </div>
-                    <div class="Spoiler-hide">
-                      <p>Первая книга - сборник повестей и рассказов "Большой поток" - посвящена людям леспромхоза. Автор книг "Рассказы" (1954), "Неразменное счастье. Повести и рассказы" (1962). Наиболее известная его повесть "Девчата" (1961) переведена на пятнадцать языков. По написанному им же сценарию был поставлен одноименный фильм, до сих пор имеющий огромный успех.
-                      </p>
-                    </div>
-                    <div class="Comment-footer">
-                      <div class="Comment-appeal">
-                        <button class="btn btn_white btn_like" data-btntype="check" data-check="false" data-btnradio="one1" data-likeid="222"><span class="btn-icon"><img src="/assets/img/icons/comment/like.svg" alt="like.svg"/></span><span class="btn-content">100</span>
-                        </button>
-                        <button class="btn btn_white btn_dislike" data-btntype="check" data-check="false" data-btnradio="one1" data-likeid="222"><span class="btn-icon"><img src="/assets/img/icons/comment/dislike.svg" alt="dislike.svg"/></span><span class="btn-content">50</span>
-                        </button>
-                      </div>
-                      <button class="Spoiler-trigger btn btn_primary btn_nr" type="button" data-showtext="Свернуть отзыв" data-hidetext="Показать отзыв полностью">
+                      <button class="btn btn_white btn_dislike" data-btntype="check" data-check="false" data-btnradio="two2" data-likeid="1111" th:attr="data-likeid = ${bookReview.id}">
+                        <span class="btn-icon"><img src="/assets/img/icons/comment/dislike.svg" alt="dislike.svg"/></span>
+                        <span class="btn-content" th:text="${bookReview.getDislikesCount()}">100</span>
                       </button>
                     </div>
                   </div>

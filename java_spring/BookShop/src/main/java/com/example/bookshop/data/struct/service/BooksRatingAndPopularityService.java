@@ -29,9 +29,13 @@ public class BooksRatingAndPopularityService {
         bookRepository.updateBookPopularity();
     }
 
+    public BookRateEntity getBookRateEntityByUserIdAndBookId(int userId, int bookId) {
+        return bookRateRepository.getBookRateEntityByUserIdAndBookId(userId, bookId);
+    }
+
     public void rateBook(int userId, String bookSlug, int rate) {
         int bookId = bookService.getBookBySlug(bookSlug).getId();
-        BookRateEntity bookRateEntity = bookRateRepository.getBookRateEntityByUserIdAndBookId(userId, bookId);
+        BookRateEntity bookRateEntity = getBookRateEntityByUserIdAndBookId(userId, bookId);
         if (bookRateEntity == null) {
             bookRateEntity = new BookRateEntity();
             bookRateEntity.setUserId(userId);

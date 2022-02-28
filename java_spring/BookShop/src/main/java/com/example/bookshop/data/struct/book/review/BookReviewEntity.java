@@ -18,7 +18,7 @@ public class BookReviewEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(columnDefinition = "INT NOT NULL")
+    @Column(name = "book_id", columnDefinition = "INT NOT NULL")
     private int bookId;
 
     @ManyToOne
@@ -34,4 +34,26 @@ public class BookReviewEntity {
     @OneToMany
     @JoinColumn(name = "review_id")
     private Set<BookReviewLikeEntity> likeEntities;
+
+    public long getLikesCount() {
+        return likeEntities.stream().filter(bookReviewLikeEntity -> bookReviewLikeEntity.getValue() > 0).count();
+    }
+
+    public long getDislikesCount() {
+        return likeEntities.stream().filter(bookReviewLikeEntity -> bookReviewLikeEntity.getValue() < 0).count();
+    }
+
+    public float getStarRating() {
+        long likes = getLikesCount();
+        long dislikes = getDislikesCount();
+        if (likeEntities.isEmpty()) return 0;
+        if (dislikes == 0) return 1;
+        return (float) likes / (likes + dislikes);
+    }
+
+    public long getTotalRate() {
+        return likeEntities.stream().mapToInt(BookReviewLikeEntity::getValue).sum();
+    }
+
+
 }

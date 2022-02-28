@@ -1,15 +1,17 @@
 package com.example.bookshop.controllers;
 
 import com.example.bookshop.data.ResourceStorage;
-import com.example.bookshop.data.struct.Author;
 import com.example.bookshop.data.struct.book.Book;
-import com.example.bookshop.data.struct.book.file.BookFile;
+import com.example.bookshop.data.struct.book.BookRateEntity;
+import com.example.bookshop.data.struct.book.review.BookReviewEntity;
 import com.example.bookshop.data.struct.service.BookService;
+import com.example.bookshop.data.struct.service.BooksRatingAndPopularityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,40 +23,42 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Controller
 public class BookPageController {
 
     private final BookService bookService;
+    private final BooksRatingAndPopularityService booksRatingAndPopularityService;
     private final Logger logger;
     private final ResourceStorage storage;
 
     @Autowired
-    public BookPageController(BookService bookService, ResourceStorage storage) {
+    public BookPageController(BookService bookService, ResourceStorage storage,
+                              BooksRatingAndPopularityService booksRatingAndPopularityService) {
         this.bookService = bookService;
         this.storage = storage;
+        this.booksRatingAndPopularityService = booksRatingAndPopularityService;
         logger = Logger.getLogger(BookPageController.class.getName());
     }
 
     @GetMapping("/books/{slug}")
-    public String bookPage(@PathVariable("slug") String slug, Model model) {
+    public String bookPage(@PathVariable("slug") String slug, Model model, Authentication authentication) {
         logger.info("Slug page query received for bookSlug = " + slug);
+        int userId = 47;
         Book book = bookService.getBookBySlug(slug);
-        List<Author> authors = book.getAuthors().stream()
-                .sorted(Comparator.comparing(Author::getName))
-                .collect(Collectors.toList());
-        List<BookFile> bookFiles = book.getBookFiles().stream()
-                .sorted(Comparator.comparing(o -> o.getBookFileType().getName()))
-                .collect(Collectors.toList());
+        BookRateEntity bookRateEntity = booksRatingAndPopularityService.getBookRateEntityByUserIdAndBookId(userId, book.getId());
+        int bookRateByUser = bookRateEntity != null ? bookRateEntity.getRate() : 0;
         logger.info("Slug " + slug + ", resolved to book " + book);
+        book.getBookReviewEntities().sort(Comparator.comparing(BookReviewEntity::getTotalRate).reversed());
+        book.getBookFiles().sort(Comparator.comparing(o -> o.getBookFileType().getName()));
         model.addAttribute("book", book);
-        model.addAttribute("authors", authors);
-        model.addAttribute("bookFiles", bookFiles);
+        model.addAttribute("bookRateByUser", bookRateByUser);
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "/books/slugmy";
+        }
         return "/books/slug";
-//        return "/books/slugmy";
     }
 
     @PostMapping("/books/{slug}/img/save")

@@ -3,13 +3,13 @@ package com.example.bookshop.controllers;
 import com.example.bookshop.data.ApiResponse;
 import com.example.bookshop.data.ApiResponseStatus;
 import com.example.bookshop.data.struct.book.Book;
-import com.example.bookshop.data.struct.service.AuthorService;
-import com.example.bookshop.data.struct.service.Book2UserService;
-import com.example.bookshop.data.struct.service.BookService;
+import com.example.bookshop.data.struct.service.*;
 import com.example.bookshop.data.BooksPageDto;
 import com.example.bookshop.data.struct.Author;
-import com.example.bookshop.data.struct.service.BooksRatingAndPopularityService;
+import com.example.bookshop.data.struct.user.UserEntity;
 import com.example.bookshop.errs.BookstoreApiWrongParameterException;
+import com.example.bookshop.security.BookstoreUserRegister;
+import com.example.bookshop.security.ContactConfirmationPayload;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -32,17 +34,28 @@ public class BooksRestApiController {
     private final BookService bookService;
     private final Book2UserService book2UserService;
     private final BooksRatingAndPopularityService booksRatingAndPopularityService;
+    private final BookReviewService bookReviewService;
+    private final UserService userService;
+    private final BookReviewLikeService bookReviewLikeService;
+    private final BookstoreUserRegister userRegister;
+
 
     private final Logger logger = Logger.getLogger(BooksRestApiController.class.getName());
 
 
     @Autowired
-    public BooksRestApiController(AuthorService authorService, BookService bookService,
-                                  Book2UserService book2UserService, BooksRatingAndPopularityService booksRatingAndPopularityService) {
+    public BooksRestApiController(AuthorService authorService, BookService bookService, Book2UserService book2UserService,
+                                  BooksRatingAndPopularityService booksRatingAndPopularityService,
+                                  BookReviewService bookReviewService, UserService userService,
+                                  BookReviewLikeService bookReviewLikeService, BookstoreUserRegister userRegister) {
         this.authorService = authorService;
         this.bookService = bookService;
         this.book2UserService = book2UserService;
         this.booksRatingAndPopularityService = booksRatingAndPopularityService;
+        this.bookReviewService = bookReviewService;
+        this.userService = userService;
+        this.bookReviewLikeService = bookReviewLikeService;
+        this.userRegister = userRegister;
     }
 
     @ApiOperation("method to get map of authors")
@@ -95,11 +108,6 @@ public class BooksRestApiController {
         return new BooksPageDto(bookService.getPageOfBooksByTag(tagId, offset, limit));
     }
 
-//    @GetMapping("/api/books/by-title")
-//    public ResponseEntity<List<Book>> booksByTitle(@RequestParam("title") String title) {
-//        return ResponseEntity.ok(bookService.getBooksByTitle(title));
-//    }
-
     @GetMapping("/api/books/genre/{id}")
     public BooksPageDto getBooksByGenre(@PathVariable(required = false, name = "id") Integer genreId,
                                         @RequestParam("offset") Integer offset, @RequestParam("limit") Integer limit) {
@@ -141,8 +149,10 @@ public class BooksRestApiController {
 
     @PostMapping("/api/rateBookReview")
     public ResponseEntity<ApiResponseStatus> handlerRateBookReview(@RequestParam(name = "reviewId") int reviewId,
-                                                                   @RequestParam(name = "value") int rate) {
-        logger.info("rated bookReview " + reviewId + " with rate " + rate);
+                                                                   @RequestParam(name = "value") short value) {
+        logger.info("rated bookReview " + reviewId + " with rate " + value);
+        int userId = 47;
+        bookReviewLikeService.addReviewLike(userId, reviewId, value);
         ApiResponseStatus responseStatus = new ApiResponseStatus();
         responseStatus.setResult(true);
         return ResponseEntity.ok(responseStatus);
@@ -150,15 +160,14 @@ public class BooksRestApiController {
 
     @PostMapping("/api/bookReview")
     public ResponseEntity<ApiResponseStatus> handlerBookReview(@RequestParam(name = "bookId") String bookSlug,
-                                                                   @RequestParam(name = "text") String text) {
+                               @RequestParam(name = "text") String text) throws BookstoreApiWrongParameterException {
         logger.info("bookReview " + bookSlug + " with text " + text);
+        Book book = bookService.getBookBySlug(bookSlug);
+        int userId = 47;
+        UserEntity user = userService.getUserById(userId);
+        bookReviewService.addBookReview(book.getId(), user, text);
         ApiResponseStatus responseStatus = new ApiResponseStatus();
-        if (text.length() > 10) {
-            responseStatus.setResult(true);
-        } else {
-            responseStatus.setResult(false);
-            responseStatus.setError("Отзыв слишком короткий. Напишите, пожалуйста, более развёрнутый отзыв");
-        }
+        responseStatus.setResult(true);
         return ResponseEntity.ok(responseStatus);
     }
 
@@ -176,11 +185,26 @@ public class BooksRestApiController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/api/requestContactConfirmation")
+    public ResponseEntity<ApiResponseStatus> handlerRequestContactConfirmation(ContactConfirmationPayload payload) {
+        logger.info("Query requestcontactconfirmation received. Payload: " + payload );
+        ApiResponseStatus responseStatus = new ApiResponseStatus();
+        responseStatus.setResult(true);
+        return ResponseEntity.ok(responseStatus);
+    }
+
+    @PostMapping("/api/approveContact")
+    public ResponseEntity<ApiResponseStatus> handlerApproveContact(ContactConfirmationPayload payload) {
+        logger.info("Query approveContact received. Payload: " + payload );
+        ApiResponseStatus responseStatus = new ApiResponseStatus();
+        responseStatus.setResult(true);
+        return ResponseEntity.ok(responseStatus);
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponseStatus> handlerMissingServletRequestParameterException(Exception exception) {
         return new ResponseEntity<>(
                 new ApiResponseStatus(false,"Missing required parameters", exception),
-//                new ApiResponse<>(HttpStatus.BAD_REQUEST, "Missing required parameters", exception),
                 HttpStatus.OK);
     }
 
@@ -188,7 +212,6 @@ public class BooksRestApiController {
     public ResponseEntity<ApiResponseStatus> handlerNumberFormatException(Exception exception) {
         return new ResponseEntity<>(
                 new ApiResponseStatus(false,"Wrong required parameter type", exception),
-//                new ApiResponse<>(HttpStatus.BAD_REQUEST, "Missing required parameters", exception),
                 HttpStatus.OK);
     }
 
@@ -196,7 +219,6 @@ public class BooksRestApiController {
     public ResponseEntity<ApiResponseStatus> handlerBookstoreApiWrongParameterException(Exception exception) {
         return new ResponseEntity<>(
                 new ApiResponseStatus(false,"Bad parameter value...", exception.getCause()),
-//                new ApiResponse<>(HttpStatus.BAD_REQUEST, "Bad parameter value...", exception.getCause()),
                 HttpStatus.OK);
     }
 

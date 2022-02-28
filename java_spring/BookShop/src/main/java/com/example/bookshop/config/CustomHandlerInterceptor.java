@@ -34,7 +34,9 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
-        logger.info("<< PostHandle Interceptor called for uri: \"" + request.getRequestURI() + "\". Chosen handler: " + handler);
+        String uri = request.getRequestURI();
+        if (!uri.contains("/assets"))
+            logger.info("<< PostHandle Interceptor called for uri: \"" + uri + "\". Chosen handler: " + handler);
         if (modelAndView != null) {
             int userId = 47;
             int cartItemCount = bookService.getCartBooksByUser(userId).size();

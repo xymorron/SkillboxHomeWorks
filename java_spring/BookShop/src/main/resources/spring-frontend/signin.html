@@ -56,6 +56,8 @@
               <div class="form-group">
                 <label class="form-label Login-title" th:text="#{body.enteremailorphone}">Введите e-mail или телефон
                 </label>
+                <br>
+                <span th:if="${regOk}">Регистрация прошла успешно!</span>
               </div>
               <div class="form-group">
                 <div class="row">
@@ -95,19 +97,28 @@
             </div>
             <div class="Login-step Login-step_hide" data-type="mail">
               <div class="form-group">
-                <label class="form-label Login-title" th:text="#{body.emailmessage}">На&nbsp;Ваш e-mail отправлена ссылка для входа и&nbsp;код. Перейдите по&nbsp;ссылке или введите код ниже:
+                <label class="form-label Login-title" th:text="#{body.emailmessage}">
+                  Введите пароль учетной записи или перейдите по&nbsp;ссылке для регистрации:
                 </label>
               </div>
               <div class="form-group form-group_key">
-                <input class="form-input" id="mailcode" name="mailcode" type="text" placeholder="Код" data-validate="key require" data-mask="999 999"/>
+                <input class="form-input" id="mailcode" name="mailcode" type="text" placeholder="Код" data-validate="key require"/>
               </div>
               <div class="form-group form-group_center">
                 <button class="btn btn_primary form-btn" type="button" name="toComeInMail" id="toComeInMail" data-send="" th:text="#{body.signin}">Войти
                 </button>
               </div>
             </div>
-            <div class="form-group form-group_center"><a class="Login-reg" href="/signup.html" th:text="#{body.regme}">Зарегистрироваться</a>
+            <div class="form-group form-group_center">
+              <a class="Login-reg" href="/signup.html" th:href="@{/signup}" th:text="#{body.regme}">Зарегистрироваться</a>
             </div>
+
+            <div class="form-group form-group_center">
+              <a class="Login-reg" href="/signup.html" th:href="@{/oauth2/authorization/google}" >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="none"><g><path d="M0 16C0 7.16344 7.16344 0 16 0C24.8366 0 32 7.16344 32 16C32 24.8366 24.8366 32 16 32C7.16344 32 0 24.8366 0 16Z" fill="#ffffff"></path><path d="M15.9985 11.7473C17.3004 11.7473 18.1786 12.3097 18.6794 12.7796L20.6361 10.8691C19.4343 9.75204 17.8705 9.06641 15.9985 9.06641C13.2868 9.06641 10.9448 10.6226 9.80469 12.8874L12.0465 14.6285C12.6088 12.9568 14.165 11.7473 15.9985 11.7473Z" fill="#EA4335"></path><path d="M22.654 16.1532C22.654 15.5831 22.6078 15.1671 22.5077 14.7357H15.998V17.3088H19.8191C19.742 17.9482 19.326 18.9111 18.4016 19.5582L20.5895 21.2531C21.8991 20.0436 22.654 18.264 22.654 16.1532Z" fill="#4285F4"></path><path d="M12.0535 17.3706C11.9071 16.9392 11.8224 16.477 11.8224 15.9994C11.8224 15.5218 11.9071 15.0595 12.0458 14.6281L9.80401 12.8871C9.33408 13.8269 9.06445 14.8823 9.06445 15.9994C9.06445 17.1164 9.33408 18.1718 9.80401 19.1117L12.0535 17.3706Z" fill="#FBBC05"></path><path d="M15.9966 22.9335C17.8686 22.9335 19.4402 22.3172 20.588 21.2541L18.4002 19.5593C17.8147 19.9676 17.0289 20.2526 15.9966 20.2526C14.1631 20.2526 12.607 19.0432 12.0523 17.3715L9.81055 19.1125C10.9507 21.3774 13.2849 22.9335 15.9966 22.9335Z" fill="#34A853"></path></g></svg>
+              </a>
+            </div>
+
           </div>
         </form>
       </main>

@@ -21,7 +21,7 @@ public class AuthorService {
 
     public Map<String, List<Author>> getAuthorsMap() {
         List<Author> authors= authorRepository.findAll();
-        return authors.stream().collect(Collectors.groupingBy((Author a) -> {return  a.getName().substring(0,1);}));
+        return authors.stream().collect(Collectors.groupingBy((Author a) -> a.getName().substring(0,1)));
     }
 
     public Author getAuthorBySlug(String slug) {

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ApiResponseStatus {
 
-    private boolean result;
+    private Boolean result;
     private String message;
     private String error;
 

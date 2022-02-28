@@ -2,6 +2,7 @@ package com.example.bookshop.data.struct.book;
 
 import com.example.bookshop.data.struct.Author;
 import com.example.bookshop.data.struct.book.file.BookFile;
+import com.example.bookshop.data.struct.book.review.BookReviewEntity;
 import com.example.bookshop.data.struct.tag.TagEntity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -74,12 +75,17 @@ public class Book {
     @OneToMany
     @JoinColumn(name = "book_id")
     @JsonIgnore
-    private Set<BookFile> bookFiles;
+    private List<BookFile> bookFiles;
 
     @OneToMany
     @JoinColumn(name = "book_id")
     @JsonIgnore
     private Set<BookRateEntity> bookRateEntities;
+
+    @OneToMany
+    @JoinColumn(name = "book_id")
+    @JsonIgnore
+    private List<BookReviewEntity> bookReviewEntities;
 
     @JsonGetter("authors")
     public String getJsonAuthors() {

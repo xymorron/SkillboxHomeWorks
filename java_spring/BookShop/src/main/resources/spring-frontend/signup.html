@@ -9,9 +9,9 @@
 <!--[if IE 9]>
 <html class="ie9" lang="ru">
 <![endif]-->
-<!--[if gt IE 9]><!--> <html lang="ru"> <!--<![endif]-->
+<!--[if gt IE 9]><!--> <html lang="ru" xmlns:th="http://www.thymeleaf.org"> <!--<![endif]-->
 <head>
-  <title>Тут название страницы написать</title>
+  <title th:text="#{signuppage.title}">Тут название страницы написать</title>
   <meta name="description" content="Описание страницы">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
@@ -39,7 +39,7 @@
           | браузера здесь&nbsp;
       | для правильного отображения сайта.
   -->
-  <header class="Header">
+  <header class="Header" th:replace="~{fragments/header_fragment :: headFragment}">
     <div class="Header-rowMain">
       <div class="wrap">
         <div class="row">
@@ -100,15 +100,20 @@
     </div>
     <div class="wrap">
       <main class="Middle-main">
-        <form class="form Login Login_registration" action="#" method="post">
+        <form class="form Login Login_registration" action="#" th:object="${regform}" th:action="@{/reg}" method="post">
           <div class="Login-ins">
             <div class="Login-step">
               <div class="form-group">
-                <input class="form-input" id="name" name="name" type="text" placeholder="Введите Имя" data-validate="require"/>
+                <input class="form-input" id="name" name="name" type="text" th:field="*{name}"
+                       placeholder="Введите Имя"
+                       data-validate="require"/>
               </div>
               <div class="form-group form-group_row">
                 <div class="form-group">
-                  <input class="form-input form-input_phone" id="phone" name="phone" type="text" placeholder="Введите телефон" data-mask="+7 (999) 999-99-99" data-validate="require"/>
+                  <input class="form-input form-input_phone" id="phone" name="phone" type="text" th:field="*{phone}"
+                         placeholder="Введите телефон"
+                         data-mask="+7 (999) 999-99-99"
+                         data-validate="require"/>
                 </div>
                 <div class="form-group form-group_key">
                   <input class="form-input form-input_code" id="phoneCode" name="phoneCode" type="text" placeholder="Код из СМС" data-mask="999 999" data-validate="require key"/>
@@ -120,7 +125,9 @@
               </div>
               <div class="form-group form-group_row">
                 <div class="form-group">
-                  <input class="form-input form-input_mail" id="mail" name="mail" type="text" placeholder="Введите e-mail" data-validate="mail require"/>
+                  <input class="form-input form-input_mail" id="mail" name="mail" type="text" th:field="*{email}"
+                         placeholder="Введите e-mail"
+                         data-validate="mail require"/>
                 </div>
                 <div class="form-group form-group_key">
                   <input class="form-input form-input_code" id="mailCode" name="mailCode" type="text" placeholder="Код из письма" data-mask="999 999" data-validate="require key"/>
@@ -130,8 +137,16 @@
                   </button>
                 </div>
               </div>
+
+              <div class="form-group">
+                <input class="form-input form-input_mail" id="pass" name="pass" type="text" th:field="*{pass}"
+                       placeholder="Введите пароль"
+                       data-validate="password require"/>
+              </div>
+
               <div class="form-group form-group_center">
-                <button class="btn btn_primary form-btn" type="button" name="registration" id="registration" disabled="disabled">Зарегистрироваться
+                <button class="btn btn_primary form-btn" type="submit" name="registration" id="registration"
+                        disabled="disabled">Зарегистрироваться
                 </button>
               </div>
             </div>
@@ -140,7 +155,7 @@
       </main>
     </div>
   </div>
-  <footer class="Footer">
+  <footer class="Footer" th:replace="~{fragments/footer_fragment :: footerFragment}">
     <div class="wrap">
       <div class="row Footer-main">
         <div class="row-block"><a class="logo logo_footer Footer-logo" href="/"><img class="logo-image" src="/assets/img/logo_footer.png" alt="logo_footer.png"/><span class="logo-text">BOOKSHOP</span></a>
